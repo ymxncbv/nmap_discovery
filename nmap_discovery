@@ -1,0 +1,73 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+  then
+    echo -e "\n\e[00;31m[*] ERROR: No Host/IP supplied\e[00m"
+    echo -e "\n\e[00;32mUsage: $0 <Hostname/IP>\e[00m"
+    echo -e "\e[00;32mExample: $0 1.1.1.1\e[00m\n"
+   
+    exit 1
+fi
+
+
+
+echo -e "\n\e[00;34m#########################################################\e[00m" 
+echo -e "\e[10;34m#\e[00m               ""\e[00;36mDiscovering $1\e[00m" "                \e[00;34m#\e[00m"
+echo -e "\e[00;34m#########################################################\e[00m"
+
+printf "\n"
+
+echo -e "\e[00;32m[*] Writing the results to file: \e[00m""\e[00;36m$1_nmap\e[00m"
+
+printf "\n" > $1_nmap
+
+printf "\n\n"
+
+echo -e "\e[00;32m[*] Runing simple port scan\e[00m"
+
+echo -e "\e[00;32m ==============  Simple port scan  ==============\e[00m" >> $1_nmap
+echo -e "   \e[00;32m ==============  $1  ==============\e[00m" >> $1_nmap
+
+
+nmap $1 | tee -a $1_nmap 
+
+printf "\n\n"
+
+echo -e "\e[00;32m[*] Runing discovery scripts\e[00m"
+
+printf "\n\n" >> $1_nmap
+
+echo -e "\e[00;32m ==============  Discovery scripts  ==============\e[00m" >> $1_nmap
+echo -e "   \e[00;32m ==============  $1  ==============\e[00m" >> $1_nmap
+
+
+nmap --script=discovery -sV -Pn $1 | tee -a $1_nmap
+
+printf "\n\n"
+
+echo -e "\e[00;32m[*] Runing vulnerability scripts\e[00m"
+
+printf "\n\n\n" >> $1_nmap
+
+echo -e "\e[00;32m ==============  Vulnerability scripts  ==============\e[00m" >> $1_nmap
+echo -e "   \e[00;32m ==============  $1  ==============\e[00m" >> $1_nmap
+
+
+nmap --script=vuln $1 | tee -a $1_nmap
+
+printf "\n\n"
+
+echo -e "\e[00;32m[*] Runing SNMP discovery\e[00m"
+
+printf "\n\n" >> $1_nmap
+
+echo -e "\e[00;32m ==============  SNMP discovery  ==============\e[00m" >> $1_nmap
+echo -e "   \e[00;32m ==============  $1  ==============\e[00m" >> $1_nmap
+
+
+nmap -sU -p 161,162 $1 | tee -a $1_nmap
+
+printf "\n\n"
+
+echo -e "\e[00;32m[*] Done!\e[00m"
+echo -e "\e[00;32m[*] Results written to file: \e[00m""\e[00;36m$1_nmap\e[00m"
